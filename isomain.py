@@ -28,6 +28,7 @@ def main():
         
     outputFile = raw_input("Enter output File name : ")
     #First check and see to avoid overwritting existing files
+    #if output file name does already exist, prompts you to decide to overwrite or not
     if path.isfile(outputFile):
         reponse =raw_input("File exists... overwrite? (y/n): ")
         if reponse.lower() == "y":
@@ -45,10 +46,12 @@ def main():
                     # Some calculations
                     # maybe make a isotope ratio class?
                     #so that if the eachword 
+        elif reponse.lower() == "n":
+            print("If you don't want to overwrite file, please choose new file name")
         else:
-            print("okay! Bye!")
+            print("You did not enter (y/n)")
             
-               
+    #if output file name does not already exist         
     else:
         outputFile = open(outputFile, 'w')
         for eachLine in inputFile:
