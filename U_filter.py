@@ -4,6 +4,9 @@
 Created on Fri Feb 24 16:19:37 2017
 
 @author: julianissen
+@author: zongyiwang
+
+Python code to filter a specific column and return mean and 2s error of isotope run. 
 
 """
 
@@ -13,6 +16,9 @@ import numpy as np
 
 print("Standard U_filter")
 file_name = raw_input("Enter the source file name: ")
+column_letter = raw_input("What column are we looking at? ")
+column_isotope = raw_input("What isotopes are measured in that column?")
+column = column_letter+'{}:'+column_letter+'{}'
     
 validEntry = False
     
@@ -28,10 +34,9 @@ while not validEntry:
 
 ws = wb.active
 
-def mean():
+def mean(column):
     outlist = []
-    for row in ws.iter_rows('G{}:G{}'.format(2, ws.max_row - 8)):
-        #I'd like the G to be able to be inputed as a function object, but can't figure it out
+    for row in ws.iter_rows(column.format(2, ws.max_row - 8)):
         for cell in row:
             value = cell.value
             if value:
@@ -42,9 +47,10 @@ def mean():
     outmean = np.nanmean(a = outarray)
     return outmean
 
-def standdev():
+
+def standdev(column):
     outlist = []
-    for row in ws.iter_rows('G{}:G{}'.format(2, ws.max_row - 8)):
+    for row in ws.iter_rows(column.format(2, ws.max_row - 8)):
         for cell in row:
             value = cell.value
             if value:
@@ -53,13 +59,11 @@ def standdev():
                 outlist.append(np.nan)
     outarray = np.array(outlist, dtype = np.float) 
     outstanddev = np.nanstd(a = outarray)
-    return outstanddev
-    #meancol = np.mean(a = outarray)
-    #print meancol   
+    return outstanddev   
 
-def counts():
+def counts(column):
     total_counts = 0
-    for row in ws.iter_rows('G{}:G{}'.format(2, ws.max_row -8)):
+    for row in ws.iter_rows(column.format(2, ws.max_row -8)):
         for cell in row:
             value = cell.value
             if value:
@@ -69,15 +73,15 @@ def counts():
     return total_counts
     
                 
-mean = mean()
-standdev = standdev()
-total_counts = counts()
+mean = mean(column)
+standdev = standdev(column)
+total_counts = counts(column)
 
 criteria = 44 * (standdev / (total_counts ** 0.5))
 
 outlist = []
 outcounts = 0
-for row in ws.iter_rows('G{}:G{}'.format(2, ws.max_row - 8)):
+for row in ws.iter_rows(column.format(2, ws.max_row - 8)):
     for cell in row:
         value = cell.value
         if value:
@@ -93,12 +97,6 @@ outmean = np.nanmean(a = outarray)
 outstanddev = np.nanstd(a = outarray)
 err = 2 * (outstanddev / (outcounts ** 0.5))
 
-print "Filtered mean :", outmean
-print "Filtered 2s error: ", err
-
-
-    
-            
-    
-
-    
+print column_isotope, "filtered counts:", outcounts
+print column_isotope, "filtered mean :", outmean
+print column_isotope, "filtered 2s error:", err
